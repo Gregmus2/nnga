@@ -1,0 +1,1 @@
+nnga - neural network, which optimized by genetic algorithm
