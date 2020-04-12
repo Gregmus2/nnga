@@ -1,4 +1,4 @@
-module nnga
+module github.com/gregmus2/nnga
 
 go 1.13
 
