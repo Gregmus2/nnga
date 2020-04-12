@@ -1,4 +1,4 @@
-package main
+package nnga
 
 import (
 	"errors"
@@ -14,16 +14,16 @@ type GA struct {
 	Cfg        *deep.Config
 	Coeffs     *Coefficients
 	genesCount int
+	size       int
 }
 
 type Coefficients struct {
-	scale                float64 // 1-5
-	selection            float64 // % of survivors
-	crossbreeding        float64 // % of children / 2
-	mutationClassic      float64 // % of mutations by classic method
-	mutationGrowth       float64 // 1.0 = -0.5 - 0.5
-	mutationGenesPercent float64 // max percent of genes will be mutate
-	mutationOffset       float64 // % of mutations by offset method
+	Scale                   float64 // 1-5
+	Selection               float64 // % of survivors
+	MutationClassic         float64 // % of mutations by classic method
+	MutationGrowth          float64 // 1.0 = -0.5 - 0.5
+	MutationGenesMaxPercent float64 // max percent of genes will be mutate
+	MutationOffset          float64 // % of mutations by offset method
 }
 
 // size should be sqr of int
@@ -42,6 +42,7 @@ func NewGA(size int, cfg *deep.Config, coeffs *Coefficients) *GA {
 		Cfg:        cfg,
 		Coeffs:     coeffs,
 		genesCount: inputWeightsCount + hiddenLayersWeightsCount + outputWeightsCount,
+		size:       size,
 	}
 }
 
@@ -69,7 +70,7 @@ func (ga *GA) rouletteSelection() error {
 	sumOfScaledScores := 0.0
 	scaledScores := make([]float64, len(ga.Persons))
 	for i, person := range ga.Persons {
-		scaledScores[i] = person.score + (mean - ga.Coeffs.scale*std)
+		scaledScores[i] = person.score + (mean - ga.Coeffs.Scale*std)
 		sumOfScaledScores += scaledScores[i]
 	}
 
@@ -78,7 +79,7 @@ func (ga *GA) rouletteSelection() error {
 		chances[i] = scaledScores[i] / sumOfScaledScores
 	}
 
-	newGenerationCount := int(math.Round(ga.Coeffs.selection * float64(len(ga.Persons))))
+	newGenerationCount := int(math.Round(ga.Coeffs.Selection * float64(len(ga.Persons))))
 	newGeneration := make([]*Person, 0, newGenerationCount)
 	maxValue := 1.0
 	for i := 0; i < newGenerationCount; i++ {
@@ -101,7 +102,7 @@ func (ga *GA) rouletteSelection() error {
 }
 
 func (ga *GA) selection() {
-	newGenerationCount := int(math.Round(ga.Coeffs.selection * float64(len(ga.Persons))))
+	newGenerationCount := int(math.Round(ga.Coeffs.Selection * float64(len(ga.Persons))))
 	sort.Slice(ga.Persons, func(i, j int) bool {
 		return ga.Persons[i].score > ga.Persons[j].score
 	})
@@ -111,9 +112,9 @@ func (ga *GA) selection() {
 
 func (ga *GA) crossover() {
 	populationSize := len(ga.Persons)
-	count := math.Round(ga.Coeffs.crossbreeding * float64(populationSize))
+	count := int(math.Round(float64(ga.size-populationSize) / 2))
 
-	for i := 0; i < int(count); i++ {
+	for i := 0; i < count; i++ {
 		mother := ga.Persons[rand.Intn(populationSize)]
 		father := ga.Persons[rand.Intn(populationSize)]
 		cutPoint := rand.Intn(ga.genesCount-2) + 1
@@ -130,10 +131,10 @@ func (ga *GA) crossover() {
 }
 
 func (ga *GA) mutation() {
-	Kc := ga.Coeffs.mutationClassic
-	Kg := ga.Coeffs.mutationGrowth
-	Kgc := ga.Coeffs.mutationGenesPercent
-	Ko := ga.Coeffs.mutationOffset
+	Kc := ga.Coeffs.MutationClassic
+	Kg := ga.Coeffs.MutationGrowth
+	Kgc := ga.Coeffs.MutationGenesMaxPercent
+	Ko := ga.Coeffs.MutationOffset
 	populationSize := len(ga.Persons)
 	mutatedGenesMax := int(math.Round(Kgc * float64(ga.genesCount)))
 

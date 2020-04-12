@@ -1,4 +1,4 @@
-package main
+package nnga
 
 import (
 	"github.com/patrikeh/go-deep"
@@ -16,14 +16,14 @@ var defaultNeuralCfg = &deep.Config{
 }
 
 func TestNewGA(t *testing.T) {
-	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{selection: 0.2, scale: 3})
+	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{Selection: 0.2, Scale: 3})
 	if len(ga.Persons) != 1000 {
 		t.Fatalf("wrong amount of persons on the beginning: %d", len(ga.Persons))
 	}
 }
 
 func TestGA_selection(t *testing.T) {
-	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{selection: 0.2, scale: 3})
+	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{Selection: 0.2, Scale: 3})
 	for _, person := range ga.Persons {
 		person.Score(-(rand.Float64() * 10))
 	}
@@ -35,14 +35,14 @@ func TestGA_selection(t *testing.T) {
 }
 
 func TestGA_crossover(t *testing.T) {
-	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{selection: 0.2, scale: 3, crossbreeding: 1.2})
+	ga := NewGA(1000, defaultNeuralCfg, &Coefficients{Selection: 0.2, Scale: 3})
 	for _, person := range ga.Persons {
 		person.Score(-(rand.Float64() * 10))
 	}
 
 	populationSize := float64(len(ga.Persons))
 	ga.crossover()
-	if len(ga.Persons) != int(math.Round(ga.Coeffs.crossbreeding*populationSize)*2+populationSize) {
-		t.Fatalf("wrong amount of persons after crossover: %d != %d", len(ga.Persons), int(math.Round(ga.Coeffs.crossbreeding*populationSize)*3))
+	if len(ga.Persons) != 1000 {
+		t.Fatalf("wrong amount of persons after crossover: %d != %d", len(ga.Persons), 1000)
 	}
 }

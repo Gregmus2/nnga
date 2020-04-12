@@ -1,4 +1,4 @@
-package main
+package nnga
 
 import "github.com/patrikeh/go-deep"
 
