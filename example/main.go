@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gregmus2/nnga"
+	"github.com/Gregmus2/nnga"
 	"github.com/patrikeh/go-deep"
 	"github.com/patrikeh/go-deep/training"
 	"log"
